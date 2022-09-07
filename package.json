@@ -18,11 +18,14 @@
     "Lluis Agusti <hi@llu.lu>"
   ],
   "dependencies": {
+    "ethers": "^5.5.1",
     "next": "latest",
     "next-auth": "latest",
     "nodemailer": "^6",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "siwe": "^1.1.6",
+    "wagmi": "^0.6.4"
   },
   "devDependencies": {
     "@types/node": "^17",

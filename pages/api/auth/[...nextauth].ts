@@ -1,65 +1,83 @@
-import NextAuth, { NextAuthOptions } from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-import FacebookProvider from "next-auth/providers/facebook"
-import GithubProvider from "next-auth/providers/github"
-import TwitterProvider from "next-auth/providers/twitter"
-import Auth0Provider from "next-auth/providers/auth0"
-// import AppleProvider from "next-auth/providers/apple"
-// import EmailProvider from "next-auth/providers/email"
+import { NextApiRequest, NextApiResponse } from "next"
+import NextAuth from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
+import { getCsrfToken } from "next-auth/react"
+import { SiweMessage } from "siwe"
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
-export const authOptions: NextAuthOptions = {
-  // https://next-auth.js.org/configuration/providers/oauth
-  providers: [
-    /* EmailProvider({
-         server: process.env.EMAIL_SERVER,
-         from: process.env.EMAIL_FROM,
-       }),
-    // Temporarily removing the Apple provider from the demo site as the
-    // callback URL for it needs updating due to Vercel changing domains
+export default async function auth(req: NextApiRequest, res: NextApiResponse<any>) {
+  const providers = [
+    CredentialsProvider({
+      name: "Ethereum",
+      credentials: {
+        message: {
+          label: "Message",
+          type: "text",
+          placeholder: "0x0",
+        },
+        signature: {
+          label: "Signature",
+          type: "text",
+          placeholder: "0x0",
+        },
+      },
+      async authorize(credentials) {
+        try {
+          const siwe = new SiweMessage(JSON.parse(credentials?.message || "{}"))
 
-    Providers.Apple({
-      clientId: process.env.APPLE_ID,
-      clientSecret: {
-        appleId: process.env.APPLE_ID,
-        teamId: process.env.APPLE_TEAM_ID,
-        privateKey: process.env.APPLE_PRIVATE_KEY,
-        keyId: process.env.APPLE_KEY_ID,
+          const nextAuthUrl =
+            process.env.NEXTAUTH_URL ||
+            (process.env.VERCEL_URL
+              ? `https://${process.env.VERCEL_URL}`
+              : null)
+          if (!nextAuthUrl) {
+            return null
+          }
+
+          const nextAuthHost = new URL(nextAuthUrl).host
+          if (siwe.domain !== nextAuthHost) {
+            return null
+          }
+
+          if (siwe.nonce !== (await getCsrfToken({ req }))) {
+            return null
+          }
+
+          await siwe.validate(credentials?.signature || "")
+          return {
+            id: siwe.address,
+          }
+        } catch (e) {
+          return null
+        }
       },
     }),
-    */
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_ID,
-      clientSecret: process.env.FACEBOOK_SECRET,
-    }),
-    GithubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
-    }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-    }),
-    TwitterProvider({
-      clientId: process.env.TWITTER_ID,
-      clientSecret: process.env.TWITTER_SECRET,
-    }),
-    Auth0Provider({
-      clientId: process.env.AUTH0_ID,
-      clientSecret: process.env.AUTH0_SECRET,
-      issuer: process.env.AUTH0_ISSUER,
-    }),
-  ],
-  theme: {
-    colorScheme: "light",
-  },
-  callbacks: {
-    async jwt({ token }) {
-      token.userRole = "admin"
-      return token
-    },
-  },
-}
+  ]
 
-export default NextAuth(authOptions)
+  const isDefaultSigninPage =
+    req.method === "GET" && req.query.nextauth?.includes("signin")
+
+  // Hide Sign-In with Ethereum from default sign page
+  if (isDefaultSigninPage) {
+    providers.pop()
+  }
+
+  return await NextAuth(req, res, {
+    // https://next-auth.js.org/configuration/providers/oauth
+    providers,
+    session: {
+      strategy: "jwt"
+    },
+    secret: process.env.NEXTAUTH_SECRET,
+    callbacks: {
+      async session({ session, token }) {
+        session.address = token.sub
+        session.user = {}
+        session.user.name = token.sub;
+        session.user.image = 'https://www.fillmurray.com/128/128'
+        return session
+      },
+    },
+  })
+}

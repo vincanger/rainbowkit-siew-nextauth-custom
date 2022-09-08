@@ -87,6 +87,6 @@
 }
 
 .navItem {
-  display: inline-block;
+  display: list-item;
   margin-right: 1rem;
 }

@@ -34,12 +34,12 @@ export default function Header() {
                 <strong>{session.user.email ?? session.user.name}</strong>
               </span>
               <a
-                href={`/api/auth/signout`}
+                // href={`/api/auth/signout`}
                 className={styles.button}
                 onClick={(e) => {
                   e.preventDefault();
-                  signOut();
                   disconnect();
+                  signOut();
                 }}
               >
                 Sign out
@@ -57,7 +57,17 @@ export default function Header() {
           </li>
           <li className={styles.navItem}>
             <Link href='/siwe'>
-              <a>SIWE</a>
+              <a>SIWE - "Sign In With Ethereum"</a>
+            </Link>
+          </li>
+          <li className={styles.navItem}>
+            <Link href='/protected'>
+              <a>Protected Path Example - provided by NextAuth </a>
+            </Link>
+          </li>
+          <li className={styles.navItem}>
+            <Link href='/rainbow-protected'>
+              <a>Protected Path Example - provided by RainbowKit </a>
             </Link>
           </li>
         </ul>

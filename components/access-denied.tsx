@@ -6,11 +6,7 @@ export default function AccessDenied() {
       <h1>Access Denied</h1>
       <p>
         <a
-          href="/api/auth/signin"
-          onClick={(e) => {
-            e.preventDefault()
-            signIn()
-          }}
+          href="/siwe"
         >
           You must be signed in to view this page
         </a>

@@ -1,36 +1,35 @@
-import { NextApiRequest, NextApiResponse } from "next"
-import NextAuth from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import { getCsrfToken } from "next-auth/react"
-import { SiweMessage } from "siwe"
+import { NextApiRequest, NextApiResponse } from 'next';
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { getCsrfToken } from 'next-auth/react';
+import { SiweMessage } from 'siwe';
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export default async function auth(req: NextApiRequest, res: NextApiResponse<any>) {
   const providers = [
     CredentialsProvider({
-      name: "Ethereum",
+      name: 'Ethereum',
       credentials: {
         message: {
-          label: "Message",
-          type: "text",
-          placeholder: "0x0",
+          label: 'Message',
+          type: 'text',
+          placeholder: '0x0',
         },
         signature: {
-          label: "Signature",
-          type: "text",
-          placeholder: "0x0",
+          label: 'Signature',
+          type: 'text',
+          placeholder: '0x0',
         },
       },
       async authorize(credentials) {
+        console.log('credentials: ', credentials)
         try {
-          const siwe = new SiweMessage(JSON.parse(credentials?.message || "{}"))
+          const siwe = new SiweMessage(JSON.parse(credentials?.message || '{}'));
+          console.log('siwe parsed message', siwe)
 
           const nextAuthUrl =
-            process.env.NEXTAUTH_URL ||
-            (process.env.VERCEL_URL
-              ? `https://${process.env.VERCEL_URL}`
-              : null)
+            process.env.NEXTAUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null);
           if (!nextAuthUrl) {
             return null
           }
@@ -44,40 +43,53 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse<any
             return null
           }
 
-          await siwe.validate(credentials?.signature || "")
+          const validated = await siwe.validate(credentials?.signature || '');
+          console.log('siwe validated message: ', validated)
           return {
             id: siwe.address,
-          }
+          };
         } catch (e) {
-          return null
+          console.log('error ', e)
+          return null;
         }
       },
     }),
-  ]
+  ];
 
-  const isDefaultSigninPage =
-    req.method === "GET" && req.query.nextauth?.includes("signin")
+  const isDefaultSigninPage = req.method === 'GET' && req.query.nextauth?.includes('signin');
 
   // Hide Sign-In with Ethereum from default sign page
   if (isDefaultSigninPage) {
-    providers.pop()
+    providers.pop();
   }
 
   return await NextAuth(req, res, {
     // https://next-auth.js.org/configuration/providers/oauth
     providers,
     session: {
-      strategy: "jwt"
+      strategy: 'jwt',
     },
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
       async session({ session, token }) {
-        session.address = token.sub
-        session.user = {}
+        session.address = token.sub;
+        session.user = {};
         session.user.name = token.sub;
-        session.user.image = 'https://www.fillmurray.com/128/128'
-        return session
+        session.user.image = 'https://www.fillmurray.com/128/128';
+        return session;
       },
+      // async redirect({ url, baseUrl }) {
+      //   console.log('redirect ---->>>> : ', url, baseUrl)
+      //   // Allows relative callback URLs
+      //   if (url.startsWith('/')) {
+      //     return `${baseUrl}${url}`;
+      //   } else if (new URL(url).origin === baseUrl) {
+      //     console.log(url);
+      //     return url;
+      //   }
+
+      //   return baseUrl;
+      // },
     },
-  })
+  });
 }

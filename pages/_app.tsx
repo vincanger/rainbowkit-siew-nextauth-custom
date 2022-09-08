@@ -1,41 +1,54 @@
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider, useSession } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import './styles.css';
+import '@rainbow-me/rainbowkit/styles.css';
+import { RainbowKitSiweNextAuthProvider, GetSiweMessageOptions } from '@rainbow-me/rainbowkit-siwe-next-auth';
+import { RainbowKitProvider, connectorsForWallets, wallet } from '@rainbow-me/rainbowkit';
+import RainbowKitCustomAuthProvider from '../components/auth-adapter';
 import { WagmiConfig, createClient, configureChains, chain } from 'wagmi';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { InjectedConnector } from 'wagmi/connectors/injected';
-import { providers } from 'ethers';
+
+// for use with the RainbowKitSiweNextAuthProvider, NOT with custom authentication adapter
+// const getSiweMessageOptions: GetSiweMessageOptions = () => ({
+//   statement: 'SIWE via RainbowKit :)',
+// });
 
 const { chains, provider } = configureChains(
-  [chain.localhost],
+  [chain.polygon, chain.mainnet],
   [
+    alchemyProvider({ apiKey: '5i38PznIJoCxXZLaD0d2wU28aXQrwpP-', priority: 0 }),
     jsonRpcProvider({
+      priority: 1,
       rpc: (chain) => ({
-        http: 'http://localhost:8545',
+        http: 'https://white-snowy-breeze.matic-testnet.discover.quiknode.pro/7677ba3e0b8940a9866fbecc159fb7efe2445d3e/',
       }),
     }),
-    // jsonRpcProvider({
-    //   priority: 0,
-    //   rpc: (chain) => ({
-    //     http: 'https://white-snowy-breeze.matic-testnet.discover.quiknode.pro/7677ba3e0b8940a9866fbecc159fb7efe2445d3e/',
-    //   }),
-    // }),
-    // alchemyProvider({ alchemyId: '5i38PznIJoCxXZLaD0d2wU28aXQrwpP-', priority: 1 }),
   ]
 );
 
-// const localhostProvider = new providers.JsonRpcProvider('http://localhost:8545', {
-//   name: 'dev',
-//   chainId: 1337,
-//   ensAddress: undefined,
-// });
+const connectors = connectorsForWallets([
+  {
+    groupName: 'Recommended',
+    wallets: [
+      wallet.metaMask({ chains }),
+      wallet.rainbow({ chains }),
+      wallet.walletConnect({ chains }),
+      wallet.coinbase({
+        appName: 'SIWE Example',
+        chains,
+      }),
+      wallet.ledger({
+        chains,
+      }),
+    ],
+  },
+]);
 
-// Give wagmi our provider config and allow it to autoconnect wallet
 const client = createClient({
   autoConnect: true,
-  connectors: [new InjectedConnector({ chains })],
-  provider: provider,
+  connectors,
+  provider,
 });
 
 // Use of the <SessionProvider> is mandatory to allow components that call
@@ -44,7 +57,13 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={client}>
       <SessionProvider session={pageProps.session} refetchInterval={0}>
-        <Component {...pageProps} />
+        <RainbowKitCustomAuthProvider>
+        {/* <RainbowKitSiweNextAuthProvider> */}
+          <RainbowKitProvider chains={chains}>
+            <Component {...pageProps} />
+          </RainbowKitProvider>
+        {/* </RainbowKitSiweNextAuthProvider> */}
+        </RainbowKitCustomAuthProvider>
       </SessionProvider>
     </WagmiConfig>
   );

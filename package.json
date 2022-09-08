@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "NODE_OPTIONS='-r next-logger' next start"
   },
   "author": "Iain Collins <me@iaincollins.com>",
   "contributors": [
@@ -18,9 +18,12 @@
     "Lluis Agusti <hi@llu.lu>"
   ],
   "dependencies": {
+    "@rainbow-me/rainbowkit": "file:/Users/vincecanger/Documents/projects/next-auth-example/rainbowkit/packages/rainbowkit",
+    "@rainbow-me/rainbowkit-siwe-next-auth": "file:/Users/vincecanger/Documents/projects/next-auth-example/rainbowkit/packages/rainbowkit-siwe-next-auth",
     "ethers": "^5.5.1",
     "next": "latest",
     "next-auth": "latest",
+    "next-logger": "^3.0.1",
     "nodemailer": "^6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

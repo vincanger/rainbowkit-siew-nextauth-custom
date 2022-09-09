@@ -23,7 +23,7 @@ function Siwe() {
     try {
       const res = await connectAsync({ connector: new InjectedConnector({ chains: [chain.mainnet, chain.polygon]}), chainId: 137 });
       const nonce = await getCsrfToken();
-      const callbackUrl = '/protected'; // redirect path. you can also change this to /rainbow-protected
+      const callbackUrl = '/protected'; // redirect path
       const message = new SiweMessage({
         domain: window.location.host,
         address: res.account,
@@ -66,15 +66,6 @@ function Siwe() {
             <em>You're signed in. Bill Murray is proud of you!</em>
           </span>
         )}
-      </div>
-      <div style={{ margin: '1rem' }}>
-        <span>and this is the RainbowKit implementation</span>
-        <ConnectButton 
-          label={'Sign in with Ethereum'}
-          accountStatus={'full'}
-          chainStatus={'icon'}
-          showBalance={false}
-        />
       </div>
     </Layout>
   );

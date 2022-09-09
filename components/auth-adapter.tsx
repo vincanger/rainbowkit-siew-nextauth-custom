@@ -9,7 +9,7 @@ interface RainbowKitSiweNextAuthProviderProps {
   children: ReactNode;
 }
 
-export default function RainbowKitSiweNextAuthProvider({ children, enabled }: RainbowKitSiweNextAuthProviderProps) {
+export default function authAdapter({ children, enabled }: RainbowKitSiweNextAuthProviderProps) {
   const { status } = useSession();
   const authAdapter = createAuthenticationAdapter({
     getNonce: async () => {
@@ -30,22 +30,24 @@ export default function RainbowKitSiweNextAuthProvider({ children, enabled }: Ra
     getMessageBody: ({ message }) => {
       return message.prepareMessage();
     },
-    verify: async ({ message, signature }) => {
-      const response = await signIn('credentials', {
+    verify: ({ message, signature }) => {
+      signIn('credentials', {
         message: JSON.stringify(message),
-        signature, 
-        // redirect: false,
+        signature, // <-- comment this out to throw an error & reach the error page ./pages/auth/signin.tsx
+        redirect: true,
         callbackUrl: window.location.origin + '/rainbow-protected',
       });
-      return response?.ok ?? false;
+      return new Promise((resolve, reject) => {
+        resolve(true);
+      });
     },
     signOut: async () => {
-      await fetch('/siwe');
+      await fetch('/api/auth/signout');
     },
   });
 
   return (
-    <RainbowKitAuthenticationProvider adapter={authAdapter} status={status}>
+    <RainbowKitAuthenticationProvider adapter={authAdapter} enabled={enabled} status={status}>
       {children}
     </RainbowKitAuthenticationProvider>
   );

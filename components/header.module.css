@@ -83,10 +83,13 @@
 .navItems {
   margin-bottom: 2rem;
   padding: 0;
-  list-style: none;
 }
 
 .navItem {
   display: list-item;
   margin-right: 1rem;
 }
+
+/* .navItem::before {
+  content: "\200B";
+} */

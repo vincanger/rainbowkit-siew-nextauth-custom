@@ -1,11 +1,6 @@
 {
   "private": true,
-  "description": "An example project for NextAuth.js with Next.js",
-  "repository": "https://github.com/nextauthjs/next-auth-example.git",
-  "bugs": {
-    "url": "https://github.com/nextauthjs/next-auth/issues"
-  },
-  "homepage": "https://next-auth-example.vercel.app",
+  "description": "SIWE / RainbowKit / NextAuth.js / Next.js",
   "scripts": {
     "dev": "next",
     "build": "next build",
@@ -15,11 +10,12 @@
   "contributors": [
     "Balázs Orbán <info@balazsorban.com>",
     "Nico Domino <yo@ndo.dev>",
-    "Lluis Agusti <hi@llu.lu>"
+    "Lluis Agusti <hi@llu.lu>",
+    "Vince Canger <vincanger@gmail.com"
   ],
   "dependencies": {
-    "@rainbow-me/rainbowkit": "file:/Users/vincecanger/Documents/projects/next-auth-example/rainbowkit/packages/rainbowkit",
-    "@rainbow-me/rainbowkit-siwe-next-auth": "file:/Users/vincecanger/Documents/projects/next-auth-example/rainbowkit/packages/rainbowkit-siwe-next-auth",
+    "@rainbow-me/rainbowkit": "0.5.1",
+    "@rainbow-me/rainbowkit-siwe-next-auth": "0.1.1",
     "ethers": "^5.5.1",
     "next": "latest",
     "next-auth": "latest",

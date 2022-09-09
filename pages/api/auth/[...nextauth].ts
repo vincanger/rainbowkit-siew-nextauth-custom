@@ -44,7 +44,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse<any
           }
 
           const validated = await siwe.validate(credentials?.signature || '');
-          console.log('siwe validated message: ', validated)
+          console.log('siwe validated message: ', validated);
           return {
             id: siwe.address,
           };
@@ -63,6 +63,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse<any
     providers.pop();
   }
 
+
   return await NextAuth(req, res, {
     // https://next-auth.js.org/configuration/providers/oauth
     providers,
@@ -78,18 +79,9 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse<any
         session.user.image = 'https://www.fillmurray.com/128/128';
         return session;
       },
-      // async redirect({ url, baseUrl }) {
-      //   console.log('redirect ---->>>> : ', url, baseUrl)
-      //   // Allows relative callback URLs
-      //   if (url.startsWith('/')) {
-      //     return `${baseUrl}${url}`;
-      //   } else if (new URL(url).origin === baseUrl) {
-      //     console.log(url);
-      //     return url;
-      //   }
-
-      //   return baseUrl;
-      // },
+    },
+    pages: {
+      signIn: '/auth/signin',
     },
   });
 }

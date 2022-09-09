@@ -56,18 +56,18 @@ export default function Header() {
             </Link>
           </li>
           <li className={styles.navItem}>
-            <Link href='/siwe'>
-              <a>SIWE - "Sign In With Ethereum"</a>
+            <Link href='/auth/signin'>
+              <a>SIWE - "Sign In With Ethereum" - RainbowKit</a>
             </Link>
           </li>
           <li className={styles.navItem}>
             <Link href='/protected'>
-              <a>Protected Path Example - provided by NextAuth </a>
+              <a>Protected Path Example - client-side </a>
             </Link>
           </li>
           <li className={styles.navItem}>
             <Link href='/rainbow-protected'>
-              <a>Protected Path Example - provided by RainbowKit </a>
+              <a>Protected Path Example - server-side </a>
             </Link>
           </li>
         </ul>

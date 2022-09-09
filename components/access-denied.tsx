@@ -6,7 +6,7 @@ export default function AccessDenied() {
       <h1>Access Denied</h1>
       <p>
         <a
-          href="/siwe"
+          href="/auth/signin"
         >
           You must be signed in to view this page
         </a>
